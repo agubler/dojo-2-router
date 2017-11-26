@@ -29,7 +29,7 @@ export class Router extends Evented implements RouterInterface {
 		}
 
 		let linkPath = route.fullPath;
-		params = { ...this._currentParams, ...params };
+		params = { ...route.defaultParams, ...this._currentParams, ...params };
 
 		for (let i = 0; i < route.fullParams.length; i++) {
 			const param = route.fullParams[i];
@@ -81,7 +81,6 @@ export class Router extends Evented implements RouterInterface {
 			}
 
 			route.fullParams = parentRoute ? {
-				...route.defaultParams,
 				...parentRoute.fullParams,
 				...route.params
 			} : route.params;
