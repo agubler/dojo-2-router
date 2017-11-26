@@ -1,4 +1,4 @@
-import { Evented } from './util/Evented';
+import { Evented } from '@dojo/widget-core/Evented';
 import { Constructor } from '@dojo/widget-core/interfaces';
 import { Config, History, OutletContext, Params, RouterInterface, Route } from './interfaces';
 
