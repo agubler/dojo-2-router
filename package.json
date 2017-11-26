@@ -1,0 +1,41 @@
+{
+  "name": "dojo-2-router",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/agubler/dojo-2-router.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/agubler/dojo-2-router/issues"
+  },
+  "homepage": "https://github.com/agubler/dojo-2-router#readme",
+  "dependencies": {
+    "@dojo/widget-core": "^0.3.0"
+  },
+  "devDependencies": {
+    "@dojo/interfaces": "~0.1.0",
+    "@dojo/loader": "~0.1.0",
+    "@types/chai": "3.4.*",
+    "@types/glob": "5.0.*",
+    "@types/grunt": "0.4.*",
+    "@types/jsdom": "2.0.*",
+    "@types/sinon": "^1.16.31",
+    "codecov.io": "0.1.6",
+    "glob": "^7.0.6",
+    "grunt": "^1.0.1",
+    "grunt-dojo2": "latest",
+    "grunt-tslint": "^5.0.1",
+    "intern": "~4.1.0",
+    "jsdom": "^9.5.0",
+    "sinon": "^1.17.6",
+    "tslint": "^5.2.0",
+    "typescript": "~2.6.1"
+  }
+}
