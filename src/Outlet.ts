@@ -58,13 +58,17 @@ export function Outlet<W extends WidgetBaseInterface, F extends WidgetBaseInterf
 					properties = { ...properties, ...mapParams({ queryParams, params, type, router }) };
 				}
 
-				if ((type === 'exact' || type === 'error') && indexComponent) {
+				if (type === 'exact' && indexComponent) {
 					this._onEnter();
 					return w(indexComponent, properties, this.children);
 				}
 				else if (type === 'error' && errorComponent) {
 					this._onEnter();
 					return w(errorComponent, properties, this.children);
+				}
+				else if (type === 'error' && indexComponent) {
+					this._onEnter();
+					return w(indexComponent, properties, this.children);
 				}
 				else if (type !== 'error' && mainComponent) {
 					this._onEnter();
