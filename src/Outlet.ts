@@ -2,8 +2,14 @@ import { DNode, RegistryLabel, WidgetBaseInterface } from '@dojo/widget-core/int
 import { WidgetBase } from '@dojo/widget-core/WidgetBase';
 import { w } from '@dojo/widget-core/d';
 import { inject } from '@dojo/widget-core/decorators/inject';
-
-import { Component, MapParams, MapParamsOptions, OutletComponents, Outlet } from './interfaces';
+import {
+	Component,
+	MapParams,
+	MapParamsOptions,
+	OutletCallbacks,
+	OutletComponents,
+	Outlet
+} from './interfaces';
 import { Router } from './Router';
 
 export function isComponent<W extends WidgetBaseInterface>(value: any): value is Component<W> {
@@ -13,7 +19,7 @@ export function isComponent<W extends WidgetBaseInterface>(value: any): value is
 export function Outlet<W extends WidgetBaseInterface, F extends WidgetBaseInterface, E extends WidgetBaseInterface>(
 	outletComponents: Component<W> | OutletComponents<W, F, E>,
 	outlet: string,
-	mapParams: MapParams = (options: MapParamsOptions) => {},
+	outletCallbacks: OutletCallbacks = {},
 	key: RegistryLabel
 ): Outlet<W, F, E> {
 	const indexComponent = isComponent(outletComponents) ? undefined : outletComponents.index;
@@ -26,27 +32,49 @@ export function Outlet<W extends WidgetBaseInterface, F extends WidgetBaseInterf
 	@inject({ name: key, getProperties })
 	class OutletComponent extends WidgetBase<Partial<W['properties']> & { router: Router }, null> {
 
+		private _matched = false;
+
 		public __setProperties__(properties: Partial<W['properties']> & { router: Router }): void {
 			super.__setProperties__(properties);
 			this.invalidate();
 		}
 
+		private _onEnter() {
+			const { onEnter } = outletCallbacks;
+			if (this._matched === false) {
+				onEnter && onEnter();
+				this._matched = true;
+			}
+		}
+
 		protected render(): DNode {
-			const { router } = this.properties;
+			const { mapParams, onExit } = outletCallbacks;
+			let { router, ...properties } = this.properties;
+
 			const outletContext = router.getOutlet(outlet);
 			if (outletContext) {
 				const { queryParams, params, type } = outletContext;
-				const properties = { ...this.properties, ...mapParams({ queryParams, params, type, router }) };
+				if (mapParams) {
+					properties = { ...properties, ...mapParams({ queryParams, params, type, router }) };
+				}
 
 				if ((type === 'exact' || type === 'error') && indexComponent) {
+					this._onEnter();
 					return w(indexComponent, properties, this.children);
 				}
 				else if (type === 'error' && errorComponent) {
+					this._onEnter();
 					return w(errorComponent, properties, this.children);
 				}
 				else if (type !== 'error' && mainComponent) {
+					this._onEnter();
 					return w(mainComponent, properties, this.children);
 				}
+			}
+
+			if (this._matched === true) {
+				onExit && onExit();
+				this._matched = false;
 			}
 			return null;
 		}

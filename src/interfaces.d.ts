@@ -24,6 +24,7 @@ export interface Config {
 	outlet: string;
 	children?: Config[];
 	defaultParams?: Params;
+	defaultRoute?: boolean;
 }
 
 export interface Params {
@@ -33,15 +34,17 @@ export interface Params {
 export interface MapParamsOptions {
 	queryParams: Params;
 	params: Params;
-	type: string;
+	type: MatchType;
 	router: RouterInterface;
 }
+
+export type MatchType = 'error' | 'exact' | 'partial';
 
 export interface OutletContext {
 	/**
 	 * The type of match for the outlet
 	 */
-	type: string;
+	type: MatchType;
 
 	/**
 	 * The params for the specific outlet
@@ -67,6 +70,12 @@ export interface RouterInterface {
 
 export interface MapParams {
 	(options: MapParamsOptions): any;
+}
+
+export interface OutletCallbacks {
+	onEnter?: () => void;
+	onExit?: () => void;
+	mapParams?: MapParams;
 }
 
 /**
@@ -99,4 +108,5 @@ export interface LinkProperties extends VirtualDomProperties {
 export interface History {
 	set(path: string): void;
 	prefix(path: string): string;
+	readonly current: string;
 }

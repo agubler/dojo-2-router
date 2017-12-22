@@ -1,6 +1,14 @@
 import { Evented } from '@dojo/core/Evented';
 import { Constructor } from '@dojo/widget-core/interfaces';
-import { Config, History, OutletContext, Params, RouterInterface, Route } from './interfaces';
+import {
+	Config,
+	History,
+	MatchType,
+	OutletContext,
+	Params,
+	RouterInterface,
+	Route
+} from './interfaces';
 
 const PARAM = Symbol('routing param');
 
@@ -9,14 +17,19 @@ export class Router extends Evented implements RouterInterface {
 	private _outletMap: { [index: string]: Route } = Object.create(null);
 	private _matchedOutlets: { [index: string]: OutletContext } = Object.create(null);
 	private _currentParams: Params = {};
+	private _defaultOutlet: string;
 	private _history: History;
 
 	constructor(HistoryManager: Constructor<History>, config: Config[]) {
 		super();
-		this._history = new HistoryManager(this._onChange.bind(this));
 		this._register(config);
-		// This cannot stay here
-		this.setPath(window.location.hash);
+		this._history = new HistoryManager(this._onChange.bind(this));
+		if (this._matchedOutlets.errorOutlet && this._defaultOutlet) {
+			const path = this.link(this._defaultOutlet);
+			if (path) {
+				this.setPath(path);
+			}
+		}
 	}
 
 	public setPath(path: string): void {
@@ -59,7 +72,7 @@ export class Router extends Evented implements RouterInterface {
 	private _register(config: Config[], routes?: Route[], parentRoute?: Route): void {
 		routes = routes ? routes : this._routes;
 		for (let i = 0; i < config.length; i++) {
-			let { path, outlet, children, defaultParams = {} } = config[i];
+			let { path, outlet, children, defaultRoute = false, defaultParams = {} } = config[i];
 			path = this._stripLeadingSlash(path);
 			const segments: (symbol | string)[] = path.split('/');
 			const route: Route = {
@@ -73,6 +86,9 @@ export class Router extends Evented implements RouterInterface {
 				fullPath: parentRoute ? `${parentRoute.fullPath}/${path}` : path,
 				fullParams: []
 			};
+			if (defaultRoute) {
+				this._defaultOutlet = outlet;
+			}
 			for (let i = 0; i < segments.length; i++) {
 				const segment = segments[i];
 				if (typeof segment  === 'string' && segment[0] === '{') {
@@ -81,10 +97,10 @@ export class Router extends Evented implements RouterInterface {
 				}
 			}
 
-			route.fullParams = parentRoute ? {
+			route.fullParams = parentRoute ? [
 				...parentRoute.fullParams,
 				...route.params
-			} : route.params;
+			] : route.params;
 
 			if (children && children.length > 0) {
 				this._register(children, route.children, route);
@@ -119,9 +135,13 @@ export class Router extends Evented implements RouterInterface {
 		let paramIndex = 0;
 		let segments = path.split('/');
 		let routeMatched = false;
+		let previousOutlet: string | undefined = undefined;
 		while (routes.length > 0) {
+			if (segments.length === 0) {
+				break;
+			}
 			const route = routes.shift();
-			let type = 'exact';
+			let type: MatchType = 'exact';
 			if (route !== undefined) {
 				const segmentsForRoute = [ ...segments ];
 				let routeMatch = true;
@@ -133,7 +153,7 @@ export class Router extends Evented implements RouterInterface {
 				}
 				while (segments.length > 0) {
 					if (route.segments[segmentIndex] === undefined) {
-						if (segments.length) {
+						if (segments.length > 0) {
 							type = 'partial';
 						}
 						break;
@@ -151,22 +171,26 @@ export class Router extends Evented implements RouterInterface {
 					segmentIndex++;
 				}
 				if (routeMatch === true) {
+					previousOutlet = route.outlet;
 					routeMatched = true;
-					this._matchedOutlets[route.outlet] = { queryParams, params: { ...params }, type };
+					this._matchedOutlets[route.outlet] = { queryParams, params, type };
 					if (route.children.length) {
 						paramIndex = 0;
 						this._currentParams = { ...this._currentParams, ...params };
 						params = {};
-						routes = [ ...route.children ];
 					}
+					routes = [ ...route.children ];
 				}
 				else {
+					if (previousOutlet !== undefined) {
+						this._matchedOutlets[previousOutlet].type = 'error';
+					}
 					segments = [ ...segmentsForRoute ];
 				}
 			}
 		}
 		if (routeMatched === false) {
-			this._matchedOutlets.errorOutlet = { queryParams, params: {}, type: 'error' };
+			this._matchedOutlets.errorOutlet = { queryParams, params, type: 'error' };
 		}
 	}
 }

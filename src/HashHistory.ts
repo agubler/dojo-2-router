@@ -7,6 +7,7 @@ export class HashHistory implements History {
 	constructor(onChange: (path: string) => void) {
 		this._onChangeFunction = onChange.bind(this);
 		window.addEventListener('hashchange', this._onChange.bind(this), false);
+		this._onChange();
 	}
 
 	public normalizePath(path: string): string {
@@ -28,6 +29,10 @@ export class HashHistory implements History {
 		this._current = path;
 		window.location.hash = this.prefix(path);
 		this._onChange();
+	}
+
+	public get current(): string {
+		return this._current;
 	}
 
 	private _onChange() {
