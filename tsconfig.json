@@ -1,12 +1,10 @@
 {
 	"compilerOptions": {
-		"declaration": false,
-		"emitDecoratorMetadata": true,
+		"declaration": true,
 		"experimentalDecorators": true,
 		"lib": [
 			"dom",
 			"es5",
-			"es2015.promise",
 			"es2015.iterable",
 			"es2015.promise",
 			"es2015.symbol",
@@ -14,15 +12,15 @@
 		],
 		"module": "umd",
 		"moduleResolution": "node",
-		"noImplicitAny": true,
-		"noImplicitThis": true,
+		"noUnusedLocals": true,
 		"importHelpers": true,
 		"downlevelIteration": true,
 		"outDir": "_build/",
 		"removeComments": false,
 		"sourceMap": true,
-		"strictNullChecks": true,
-		"target": "es5"
+		"strict": true,
+		"target": "es5",
+		"types": [ "intern" ]
 	},
 	"include": [
 		"./src/**/*.ts",

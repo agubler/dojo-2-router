@@ -37,25 +37,33 @@ export class Router extends Evented implements RouterInterface {
 	}
 
 	public link(outlet: string, params: Params = {}): string | undefined {
-		let route = this._outletMap[outlet];
+		const { _outletMap, _currentParams, _history } = this;
+		let route = _outletMap[outlet];
 		if (route === undefined) {
 			return;
 		}
 
 		let linkPath = route.fullPath;
-		params = { ...route.defaultParams, ...this._currentParams, ...params };
+		params = { ...route.defaultParams, ..._currentParams, ...params };
+
+		if (Object.keys(params).length === 0 && route.fullParams.length > 0) {
+			return undefined;
+		}
 
 		for (let i = 0; i < route.fullParams.length; i++) {
 			const param = route.fullParams[i];
 			if (params[param]) {
 				linkPath = linkPath.replace(`{${param}}`, params[param]);
 			}
+			else {
+				return undefined;
+			}
 		}
-		return this._history.prefix(linkPath);
+		return _history.prefix(linkPath);
 	}
 
-	public getOutlet(path: string): OutletContext | undefined {
-		return this._matchedOutlets[path];
+	public getOutlet(outletName: string): OutletContext | undefined {
+		return this._matchedOutlets[outletName];
 	}
 
 	public get currentParams() {
@@ -140,53 +148,48 @@ export class Router extends Evented implements RouterInterface {
 			if (segments.length === 0) {
 				break;
 			}
-			const route = routes.shift();
+			const route = routes.shift()!;
 			let type: MatchType = 'exact';
-			if (route !== undefined) {
-				const segmentsForRoute = [ ...segments ];
-				let routeMatch = true;
-				let segmentIndex = 0;
+			const segmentsForRoute = [ ...segments ];
+			let routeMatch = true;
+			let segmentIndex = 0;
 
-				if (segments.length < route.segments.length) {
-					routeMatch = false;
-					continue;
-				}
+			if (segments.length < route.segments.length) {
+				routeMatch = false;
+			}
+			else {
 				while (segments.length > 0) {
 					if (route.segments[segmentIndex] === undefined) {
-						if (segments.length > 0) {
-							type = 'partial';
-						}
+						type = 'partial';
 						break;
 					}
-					const segment = segments.shift();
-					if (segment !== undefined) {
-						if (route.segments[segmentIndex] === PARAM) {
-							params[route.params[paramIndex++]] = segment;
-						}
-						else if (route.segments[segmentIndex] !== segment) {
-							routeMatch = false;
-							break;
-						}
+					const segment = segments.shift()!;
+					if (route.segments[segmentIndex] === PARAM) {
+						params[route.params[paramIndex++]] = segment;
+					}
+					else if (route.segments[segmentIndex] !== segment) {
+						routeMatch = false;
+						break;
 					}
 					segmentIndex++;
 				}
-				if (routeMatch === true) {
-					previousOutlet = route.outlet;
-					routeMatched = true;
-					this._matchedOutlets[route.outlet] = { queryParams, params, type };
-					if (route.children.length) {
-						paramIndex = 0;
-						this._currentParams = { ...this._currentParams, ...params };
-						params = {};
-					}
-					routes = [ ...route.children ];
+			}
+			if (routeMatch === true) {
+				previousOutlet = route.outlet;
+				routeMatched = true;
+				this._matchedOutlets[route.outlet] = { queryParams, params, type };
+				this._currentParams = { ...this._currentParams, ...params };
+				if (route.children.length) {
+					paramIndex = 0;
+					params = {};
 				}
-				else {
-					if (previousOutlet !== undefined) {
-						this._matchedOutlets[previousOutlet].type = 'error';
-					}
-					segments = [ ...segmentsForRoute ];
+				routes = [ ...route.children ];
+			}
+			else {
+				if (previousOutlet !== undefined && routes.length === 0) {
+					this._matchedOutlets[previousOutlet].type = 'error';
 				}
+				segments = [ ...segmentsForRoute ];
 			}
 		}
 		if (routeMatched === false) {

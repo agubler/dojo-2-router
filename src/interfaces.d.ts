@@ -1,7 +1,7 @@
 import {
 	Constructor,
 	RegistryLabel,
-	VirtualDomProperties,
+	VNodeProperties,
 	WidgetBaseInterface,
 	WidgetProperties
 } from '@dojo/widget-core/interfaces';
@@ -97,7 +97,7 @@ export type Outlet<
 	F extends WidgetBaseInterface,
 	E extends WidgetBaseInterface> = Constructor<WidgetBase<Partial<E['properties']> & Partial<W['properties']> & Partial<F['properties']> & WidgetProperties, null>>;
 
-export interface LinkProperties extends VirtualDomProperties {
+export interface LinkProperties extends VNodeProperties {
 	key?: string;
 	isOutlet?: boolean;
 	params?: Params;

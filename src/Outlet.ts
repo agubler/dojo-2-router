@@ -4,8 +4,6 @@ import { w } from '@dojo/widget-core/d';
 import { inject } from '@dojo/widget-core/decorators/inject';
 import {
 	Component,
-	MapParams,
-	MapParamsOptions,
 	OutletCallbacks,
 	OutletComponents,
 	Outlet

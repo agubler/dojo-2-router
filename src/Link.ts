@@ -1,11 +1,11 @@
 import { WidgetBase } from '@dojo/widget-core/WidgetBase';
 import { v } from '@dojo/widget-core/d';
 import { inject } from '@dojo/widget-core/decorators/inject';
-import { Constructor, DNode, VirtualDomProperties } from '@dojo/widget-core/interfaces';
+import { Constructor, DNode, VNodeProperties } from '@dojo/widget-core/interfaces';
 import { LinkProperties } from './interfaces';
 import { Router } from './Router';
 
-const getProperties = (router: Router, properties: LinkProperties): VirtualDomProperties => {
+const getProperties = (router: Router, properties: LinkProperties): VNodeProperties => {
 	const { to, isOutlet = true, params = {}, onClick, ...props } = properties;
 	const href = isOutlet ? router.link(to, params) : to;
 
