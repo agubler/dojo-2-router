@@ -1,4 +1,4 @@
-import { Evented } from '@dojo/widget-core/Evented';
+import { Evented } from '@dojo/core/Evented';
 import { Constructor } from '@dojo/widget-core/interfaces';
 import { Config, History, OutletContext, Params, RouterInterface, Route } from './interfaces';
 
@@ -15,6 +15,7 @@ export class Router extends Evented implements RouterInterface {
 		super();
 		this._history = new HistoryManager(this._onChange.bind(this));
 		this._register(config);
+		// This cannot stay here
 		this.setPath(window.location.hash);
 	}
 
@@ -93,8 +94,7 @@ export class Router extends Evented implements RouterInterface {
 		}
 	}
 
-	private _getQueryParams(path: string): { [index: string]: string } {
-		const [ , queryParamString ] = path.split('?');
+	private _getQueryParams(queryParamString?: string): { [index: string]: string } {
 		const queryParams: { [index: string]: string } = {};
 		if (queryParamString) {
 			const queryParameters = queryParamString.split('&');
@@ -106,13 +106,14 @@ export class Router extends Evented implements RouterInterface {
 		return queryParams;
 	}
 
-	private _onChange(path: string): void {
+	private _onChange(originalPath: string): void {
 		this.emit({ type: 'navstart' });
 		this._matchedOutlets = Object.create(null);
 		this._currentParams  = {};
-		path = this._stripLeadingSlash(path);
+		originalPath = this._stripLeadingSlash(originalPath);
 
-		const queryParams = this._getQueryParams(path);
+		const [ path, queryParamString ] = originalPath.split('?');
+		const queryParams = this._getQueryParams(queryParamString);
 		let params: Params = {};
 		let routes = [ ...this._routes ];
 		let paramIndex = 0;

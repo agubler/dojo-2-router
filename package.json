@@ -17,11 +17,14 @@
   },
   "homepage": "https://github.com/agubler/dojo-2-router#readme",
   "dependencies": {
-    "@dojo/widget-core": "file:deps/dojo-widget-core-0.3.1-rc.1.tgz"
+    "@dojo/widget-core": "latest",
+    "@dojo/core": "latest",
+    "@dojo/shim": "latest",
+    "@dojo/has": "latest"
   },
   "devDependencies": {
-    "@dojo/interfaces": "~0.1.0",
-    "@dojo/loader": "~0.1.0",
+    "@dojo/interfaces": "latest",
+    "@dojo/loader": "latest",
     "@types/chai": "3.4.*",
     "@types/glob": "5.0.*",
     "@types/grunt": "0.4.*",

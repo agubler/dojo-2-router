@@ -35,8 +35,8 @@ export function Outlet<W extends WidgetBaseInterface, F extends WidgetBaseInterf
 			const { router } = this.properties;
 			const outletContext = router.getOutlet(outlet);
 			if (outletContext) {
-				const { params, type } = outletContext;
-				const properties = { ...this.properties, ...mapParams({ params, type, router }) };
+				const { queryParams, params, type } = outletContext;
+				const properties = { ...this.properties, ...mapParams({ queryParams, params, type, router }) };
 
 				if ((type === 'exact' || type === 'error') && indexComponent) {
 					return w(indexComponent, properties, this.children);

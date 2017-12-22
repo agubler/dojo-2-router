@@ -31,6 +31,7 @@ export interface Params {
 }
 
 export interface MapParamsOptions {
+	queryParams: Params;
 	params: Params;
 	type: string;
 	router: RouterInterface;
