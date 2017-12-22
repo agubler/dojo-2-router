@@ -93,12 +93,26 @@ export class Router extends Evented implements RouterInterface {
 		}
 	}
 
+	private _getQueryParams(path: string): { [index: string]: string } {
+		const [ , queryParamString ] = path.split('?');
+		const queryParams: { [index: string]: string } = {};
+		if (queryParamString) {
+			const queryParameters = queryParamString.split('&');
+			for (let i = 0; i < queryParameters.length; i++) {
+				const [ key, value ] = queryParameters[i].split('=');
+				queryParams[key] = value;
+			}
+		}
+		return queryParams;
+	}
+
 	private _onChange(path: string): void {
 		this.emit({ type: 'navstart' });
 		this._matchedOutlets = Object.create(null);
 		this._currentParams  = {};
 		path = this._stripLeadingSlash(path);
 
+		const queryParams = this._getQueryParams(path);
 		let params: Params = {};
 		let routes = [ ...this._routes ];
 		let paramIndex = 0;
@@ -137,7 +151,7 @@ export class Router extends Evented implements RouterInterface {
 				}
 				if (routeMatch === true) {
 					routeMatched = true;
-					this._matchedOutlets[route.outlet] = { params: { ...params }, type };
+					this._matchedOutlets[route.outlet] = { queryParams, params: { ...params }, type };
 					if (route.children.length) {
 						paramIndex = 0;
 						this._currentParams = { ...this._currentParams, ...params };
@@ -151,7 +165,7 @@ export class Router extends Evented implements RouterInterface {
 			}
 		}
 		if (routeMatched === false) {
-			this._matchedOutlets.errorOutlet = { params: {}, type: 'error' };
+			this._matchedOutlets.errorOutlet = { queryParams, params: {}, type: 'error' };
 		}
 	}
 }

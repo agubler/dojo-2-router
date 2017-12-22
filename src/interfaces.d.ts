@@ -46,6 +46,11 @@ export interface OutletContext {
 	 * The params for the specific outlet
 	 */
 	params: Params;
+
+	/**
+	 * The query params for the route
+	 */
+	queryParams: Params;
 }
 
 export interface RouterInterface {
