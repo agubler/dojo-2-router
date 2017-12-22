@@ -1,1 +1,2 @@
+import './Outlet';
 import './Router';

@@ -216,4 +216,5 @@ describe('Router', () => {
 		const link = router.link('unknown');
 		assert.isUndefined(link);
 	});
+
 });
